@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo Manager</title>
+    <link href="/Content/Site.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+	<h1>Todo Manager</h1>
+    <section class="todoapp">
+        <div id="logon">
+            <header class="header">
+                <h2>Log on</h2>
+            </header>
+            <section class="main">
+                <div class="center">
+                    <input type="email" id="email" placeholder="Enter your email address ..." />
+                </div>
+            </section>
+        </div>
+        <div id="application">
+            <header class="header">
+                <input class="new-todo" placeholder="Add a new task" autofocus>
+                <input class="due-date" type="date" placeholder="DueDate" />
+                <a href="#" class="add-todo disabled">Add</a>
+            </header>
+            <section class="main">
+                <div class="todo-list"></div>
+            </section>
+            <footer class="footer">
+                <span class="todo-count"></span>
+                <ul class="filters">
+                    <li>
+                        <a href="#/" class="selected">All</a>
+                    </li>
+                    <li>
+                        <a href="#/pending">Pending</a>
+                    </li>
+                    <li>
+                        <a href="#/done">Done</a>
+                    </li>
+                </ul>
+                <button class="clear-done">Clear done</button>
+            </footer>
+        </div>
+    </section>
+
+    <script src="/scripts/jquery.js"></script>
+    <script src="/scripts/ramda.js"></script>
+    <script src="/scripts/model.js"></script>
+    <script src="/scripts/view.js"></script>
+    <script src="/scripts/controller.js"></script>
+    <script>
+        var todo = new app.Controller(new app.Model, new app.View());
+
+        function setView() {
+            todo.setView(document.location.hash);
+        }
+
+        $(window).on('hashchange', setView);
+        $(window).on('load', function () {
+            if (document.location.hash !== "#/logon") {
+                document.location.hash = "#/logon";
+            } else {
+                setView();
+            }
+        });
+    </script>
+</body>
+</html>

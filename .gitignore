@@ -1,0 +1,11 @@
+.vs/
+packages/
+*.ncrunch*
+Todo.Web/App_Data/
+Todo.Web/bin/
+Todo.Web/obj/
+Todo.Web.Tests/bin/
+Todo.Web.Tests/obj/
+*.user
+*.cache
+artifacts/
