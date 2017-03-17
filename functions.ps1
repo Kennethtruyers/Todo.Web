@@ -17,3 +17,16 @@ function Get-SolutionProjects
         }
     }	
 }
+
+function Get-PackagePath($packageId, $projectPath) {
+	if (!(Test-Path "$projectPath\packages.config")) {
+		throw "Could not find a packages.config file at $project"
+	}	
+
+	[xml]$packagesXml = Get-Content "$projectPath\packages.config"
+	$package = $packagesXml.packages.package | Where { $_.id -eq $packageId }
+	if (!$package) {
+		return $null
+	}
+	return "packages\$($package.id).$($package.version)"
+}

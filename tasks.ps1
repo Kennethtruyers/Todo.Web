@@ -46,3 +46,18 @@ task Compile{
 			}		
 		}	
 }
+
+task Test {
+	$projects |
+		ForEach-Object {
+			$xunitPath = Get-PackagePath "xunit.runner.console" $($_.Directory)
+			if($xunitPath -eq $null){
+				return
+			} 	
+			$xunitRunner = "$xunitPath\tools\xunit.console.exe"
+			exec { & $xunitRunner $absoluteOutputDirectory\$($_.Name)\$($_.Name).dll `
+								  -xml "$absoluteOutputDirectory\xunit_$($_.Name).xml" `
+								  -html "$absoluteOutputDirectory\xunit_$($_.Name).html" `
+								  -nologo }
+		}	
+}
