@@ -30,3 +30,23 @@ function Get-PackagePath($packageId, $projectPath) {
 	}
 	return "packages\$($package.id).$($package.version)"
 }
+
+function Get-Version($projectPath)
+{	
+	$line = Get-Content "$projectPath\Properties\AssemblyInfo.cs" | Where { $_.Contains("AssemblyVersion") }
+	if (!$line) {
+		throw "Couldn't find an AssemblyVersion attribute"
+	}
+	
+	$version = $line.Split('"')[1]
+	
+	$isLocal = [String]::IsNullOrEmpty($env:BUILD_SERVER)
+	
+	if($isLocal){
+		$preRelease = $(Get-Date).ToString("yyMMddHHmmss")
+		$version = "$($version.Replace("*", 0))-pre$preRelease"
+	} else{
+		$version = $version.Replace("*", $env:BUILD_NUMBER)
+	}	
+	return $version
+}

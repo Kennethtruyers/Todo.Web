@@ -61,3 +61,23 @@ task Test {
 								  -nologo }
 		}	
 }
+
+task Pack {
+	$projects |
+		ForEach-Object {
+			$octopusToolsPath = Get-PackagePath "OctopusTools" $($_.Directory)
+			if($octopusToolsPath -eq $null){
+				return
+			} 	
+
+			$version = Get-Version $_.Directory
+			exec { & $octopusToolsPath\tools\Octo.exe pack `
+													  --basePath=$absoluteOutputDirectory\$($_.Name) `
+													  --outFolder=$absoluteOutputDirectory --id=$($_.Name) `
+													  --overwrite `
+													  --version=$version}
+		}	
+}
+
+task dev clean, compile, test, pack
+task ci dev
