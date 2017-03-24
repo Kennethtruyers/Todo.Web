@@ -1,8 +1,15 @@
 cls
 
+Write-Host "Checking NuGet"
+
 $nugetPath = "$env:LOCALAPPDATA\NuGet\NuGet.exe"
 
 if (!(Get-Command NuGet -ErrorAction SilentlyContinue) -and !(Test-Path $nugetPath)) {
+    if(! (Test-Path "$env:LOCALAPPDATA\NuGet"))
+    {
+        Write-Host "Creating directory"
+        New-Item -ItemType Directory "$env:LOCALAPPDATA\NuGet"
+    }
 	Write-Host 'Downloading NuGet.exe'
 	(New-Object System.Net.WebClient).DownloadFile("https://dist.nuget.org/win-x86-commandline/latest/nuget.exe", $nugetPath)
 } 
