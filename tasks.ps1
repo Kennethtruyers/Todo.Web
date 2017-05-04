@@ -73,11 +73,63 @@ task Pack {
 			$version = Get-Version $_.Directory
 			exec { & $octopusToolsPath\tools\Octo.exe pack `
 													  --basePath=$absoluteOutputDirectory\$($_.Name) `
-													  --outFolder=$absoluteOutputDirectory --id=$($_.Name) `
+													  --outFolder=$absoluteOutputDirectory --id=$($_.PackageId) `
 													  --overwrite `
 													  --version=$version}
 		}	
 }
 
+task Push{
+	$projects |
+			ForEach-Object {
+				$octopusToolsPath = Get-PackagePath "OctopusTools" $($_.Directory)
+				if($octopusToolsPath -eq $null){
+					return
+				}	
+
+				$package = @(Get-ChildItem $absoluteOutputDirectory\$($_.PackageId)*.nupkg)
+				exec { NuGet push $package -Source "$env:octopusDeployServer/nuget/packages" `
+										   -ApiKey $env:octopusDeployApiKey } 
+			}
+}
+
+task Release {
+$projects |
+		ForEach-Object {
+			$octopusToolsPath = Get-PackagePath "OctopusTools" $($_.Directory)
+			if($octopusToolsPath -eq $null){
+				return
+			}
+			
+			$version = Get-Version $_.Directory	
+			exec { & $octopusToolsPath\tools\Octo.exe create-release `
+													  --server="$env:octopusDeployServer" `
+													  --apiKey="$env:octopusDeployApiKey" `
+													  --project="$($_.PackageId)" `
+													  --version="$version" `
+													  --packageVersion="$version" `
+													  --ignoreexisting }
+		}	
+}
+
+task Deploy{
+	$projects |
+		ForEach-Object {
+			$octopusToolsPath = Get-PackagePath "OctopusTools" $($_.Directory)
+			if($octopusToolsPath -eq $null){
+				return
+			} 
+			
+			$version = Get-Version $_.Directory
+			
+			exec { & $octopusToolsPath\tools\Octo.exe deploy-release `
+													--server="$env:octopusDeployServer" `
+													--apiKey="$env:octopusDeployApiKey" `
+													--project="$($_.PackageId)" `
+													--version="$version" `
+													--deployto="$env:environment" }			
+		}
+}
+
 task dev clean, compile, test, pack
-task ci dev
+task ci dev, push, release, deploy

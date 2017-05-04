@@ -14,11 +14,13 @@ function Get-SolutionProjects
 			Name = $_.ProjectName;
 			Directory = "$(Split-Path -Path $_.AbsolutePath -Resolve)";
 			IsWebProject = $isWebProject;
+			PackageId = $_.ProjectName -replace "\.", "-";
         }
     }	
 }
 
-function Get-PackagePath($packageId, $projectPath) {
+function Get-PackagePath($packageId, $projectPath) 
+{
 	if (!(Test-Path "$projectPath\packages.config")) {
 		throw "Could not find a packages.config file at $project"
 	}	
@@ -31,6 +33,7 @@ function Get-PackagePath($packageId, $projectPath) {
 	return "packages\$($package.id).$($package.version)"
 }
 
+$preRelease = $(Get-Date).ToString("yyMMddHHmmss")
 function Get-Version($projectPath)
 {	
 	$line = Get-Content "$projectPath\Properties\AssemblyInfo.cs" | Where { $_.Contains("AssemblyVersion") }
@@ -43,7 +46,6 @@ function Get-Version($projectPath)
 	$isLocal = [String]::IsNullOrEmpty($env:BUILD_SERVER)
 	
 	if($isLocal){
-		$preRelease = $(Get-Date).ToString("yyMMddHHmmss")
 		$version = "$($version.Replace("*", 0))-pre$preRelease"
 	} else{
 		$version = $version.Replace("*", $env:BUILD_NUMBER)
